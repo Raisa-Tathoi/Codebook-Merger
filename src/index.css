@@ -1,0 +1,575 @@
+:root {
+  --bg: #e2e2e2;
+  --fg: #000000;
+  --muted: #666666;
+  --card: #f4f4f4;
+  --card-hover: #eaeaea;
+  --border: #000000;
+  --border-soft: #cccccc;
+  --danger: #000000;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* ---------- 3-panel layout ---------- */
+.split-root {
+  height: 100vh;
+  width: 100vw;
+  border: 3px solid var(--border);
+}
+
+.split-panel {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-left,
+.panel-right {
+  background: var(--bg);
+}
+
+.panel-middle {
+  background: #ffffff;
+}
+
+.split-handle {
+  width: 4px;
+  background: var(--border);
+  cursor: col-resize;
+  position: relative;
+}
+
+.split-handle:hover {
+  background: #333333;
+}
+
+/* ---------- Panel chrome ---------- */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--border);
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-heading {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.file-meta {
+  padding: 6px 12px;
+  color: var(--muted);
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.file-meta .dot {
+  opacity: 0.5;
+}
+
+.panel-body {
+  flex: 1;
+  overflow: auto;
+  padding: 8px 8px 24px;
+}
+
+.source-panel,
+.merge-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.merge-body {
+  flex: 1;
+  overflow: auto;
+  padding: 8px 8px 24px;
+  position: relative;
+}
+
+.merge-body.root-drop-target {
+  outline: 3px dashed var(--fg);
+  outline-offset: -6px;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1.5px solid var(--fg);
+  padding: 4px 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  border-color: var(--border-soft);
+  color: var(--muted);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--card);
+  color: var(--fg);
+  border-color: var(--fg);
+}
+
+.btn-primary {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #333;
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 11px;
+}
+
+.icon-btn:hover {
+  border-color: var(--fg);
+  color: var(--fg);
+}
+
+.icon-btn.danger:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.disclosure {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--fg);
+  padding: 0 4px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* ---------- Side / origin tags ---------- */
+.side-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border: 1.5px solid currentColor;
+  background: transparent;
+}
+
+.side-left {
+  color: var(--bg);
+  background: var(--fg);
+  border-color: var(--fg);
+}
+
+.side-right {
+  color: var(--fg);
+  background: var(--bg);
+  border-color: var(--fg);
+}
+
+.level-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border: 1px solid var(--border-soft);
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+/* ---------- Cards (source + merge) ---------- */
+.card {
+  background: var(--card);
+  border: 2px solid var(--fg);
+  padding: 6px 8px;
+  margin: 4px 0;
+  cursor: grab;
+  user-select: none;
+}
+
+.card:hover {
+  background: var(--card-hover);
+}
+
+.card.dragging {
+  opacity: 0.35;
+}
+
+.card-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-label {
+  font-weight: 600;
+  flex: 1;
+}
+
+.card-label.editable {
+  cursor: text;
+}
+
+.card-def {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #222;
+  white-space: pre-wrap;
+}
+
+.card-def.editable,
+.card-note.editable {
+  cursor: text;
+}
+
+.add-def-link {
+  margin-top: 4px;
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.add-def-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.card-note {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+/* Source card level styling — subtle inset marker */
+.source-card.level-top {
+  border-left-width: 6px;
+}
+
+.source-card.level-sub {
+  border-left-width: 4px;
+}
+
+.source-card.level-code {
+  border-left-width: 2px;
+}
+
+/* ---------- Merge card origin styling (B&W distinction) ---------- */
+.merge-card.origin-left {
+  border-style: solid;
+  border-width: 1px;
+}
+
+.merge-card.origin-right {
+  border-style: dashed;
+  border-width: 1px;
+}
+
+.merge-card.origin-merged {
+  border-style: double;
+  border-width: 1.5px;
+}
+
+.merge-card.drop-target {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.merge-card.drop-target .card-def,
+.merge-card.drop-target .card-note,
+.merge-card.drop-target .origin-trail {
+  color: var(--bg);
+}
+
+/* ---------- Badges ---------- */
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border: 1.5px solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  min-width: 24px;
+  text-align: center;
+}
+
+.badge-left {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.badge-right {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.badge-merged {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--fg),
+    var(--fg) 3px,
+    var(--bg) 3px,
+    var(--bg) 6px
+  );
+  color: var(--fg);
+  border: 2px solid var(--fg);
+}
+
+/* ---------- Origin trail ---------- */
+.origin-trail {
+  margin-top: 6px;
+  border-top: 1px dashed var(--border-soft);
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.origin-line {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.origin-level {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.origin-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.node-actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* ---------- Empty / notices ---------- */
+.empty {
+  padding: 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty ol,
+.empty ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+.notice {
+  margin: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-soft);
+  background: var(--card);
+  font-size: 12px;
+}
+
+.notice-error {
+  border-color: var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* ---------- Inline inputs ---------- */
+.inline-input,
+.inline-textarea {
+  font-family: inherit;
+  font-size: inherit;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+  padding: 3px 6px;
+  width: 100%;
+}
+
+.inline-textarea {
+  margin-top: 4px;
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* ---------- Modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--bg);
+  border: 3px solid var(--fg);
+  padding: 20px 24px;
+  min-width: 420px;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.modal-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.modal-subtitle {
+  margin: 16px 0 6px;
+  font-size: 14px;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 12px 0;
+}
+
+.modal-field select {
+  border: 1.5px solid var(--fg);
+  padding: 4px 6px;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.modal-choices {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.modal-textarea {
+  width: 100%;
+  margin-top: 8px;
+  border: 1.5px solid var(--fg);
+  background: var(--bg);
+  color: var(--fg);
+  padding: 6px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+/* ---------- Drag overlay preview ---------- */
+.drag-preview {
+  background: var(--fg);
+  color: var(--bg);
+  border: 2px solid var(--fg);
+  padding: 6px 10px;
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 4px 4px 0 var(--fg);
+}
+
+.drag-preview .side-tag {
+  border-color: var(--bg);
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.drag-preview .muted {
+  color: #aaa;
+}
+
+/* ---------- Source & merge trees ---------- */
+.source-tree,
+.merge-tree {
+  display: flex;
+  flex-direction: column;
+}
+
+.source-children,
+.merge-children {
+  border-left: 1px dotted var(--border-soft);
+  margin-left: 6px;
+  padding-left: 4px;
+}
