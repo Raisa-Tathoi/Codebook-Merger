@@ -16,6 +16,7 @@ export interface OriginRef {
   level: SourceLevel;
   path: string[];
   definition: string;
+  fileName?: string;
 }
 
 export interface MergeNode {
