@@ -8,7 +8,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { useEffect, useRef, useState } from "react";
-import { SourceProvider } from "./state/SourceContext";
+import { SourceProvider, useSources } from "./state/SourceContext";
 import {
   MergeTreeProvider,
   useMergeTree,
@@ -22,6 +22,7 @@ import {
   MERGE_DRAG_ID_PREFIX,
   MERGE_NODE_DROP_PREFIX,
   MERGE_ROOT_DROP_ID,
+  SOURCE_NODE_DROP_PREFIX,
 } from "./dnd/dndTypes";
 import type {
   DragPayload,
@@ -68,6 +69,7 @@ function Orchestrator() {
     findByLabel,
     getNode,
   } = useMergeTree();
+  const { reorderSibling } = useSources();
 
   const [activeDrag, setActiveDrag] = useState<DragPayload | null>(null);
   const [pendingMerge, setPendingMerge] = useState<PendingMerge | null>(null);
@@ -107,6 +109,17 @@ function Orchestrator() {
     const shift = shiftHeldRef.current;
 
     if (payload.kind === "source") {
+      if (overId.startsWith(SOURCE_NODE_DROP_PREFIX)) {
+        const targetId = overId.slice(SOURCE_NODE_DROP_PREFIX.length);
+        const targetSide = over.data.current?.side as
+          | "LEFT"
+          | "RIGHT"
+          | undefined;
+        if (targetSide !== payload.side) return;
+        if (targetId === payload.node.id) return;
+        reorderSibling(payload.side, payload.node.id, targetId);
+        return;
+      }
       if (overId === MERGE_ROOT_DROP_ID) {
         const dups = findByLabel(payload.node.label);
         if (dups.length > 0) {

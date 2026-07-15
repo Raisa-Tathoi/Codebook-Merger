@@ -90,6 +90,17 @@ function insertUnder(
   );
 }
 
+function originKey(side: Side, path: string[]): string {
+  return side + "|" + path.join("/");
+}
+
+function collectUsedKeys(nodes: MergeNode[], out: Set<string>): void {
+  for (const n of nodes) {
+    for (const o of n.origins) out.add(originKey(o.side, o.path));
+    if (n.children.length) collectUsedKeys(n.children, out);
+  }
+}
+
 interface MergeTreeContextValue {
   tree: MergeNode[];
   addSourceAsRoot: (source: SourceNode, side: Side) => void;
@@ -113,6 +124,7 @@ interface MergeTreeContextValue {
   clearAll: () => void;
   findByLabel: (label: string) => MergeNode[];
   getNode: (id: string) => MergeNode | null;
+  isSourceUsed: (side: Side, path: string[]) => boolean;
 }
 
 const Ctx = createContext<MergeTreeContextValue | null>(null);
@@ -124,8 +136,10 @@ export function MergeTreeProvider({ children }: { children: ReactNode }) {
     saveMergeTree(tree);
   }, [tree]);
 
-  const value = useMemo<MergeTreeContextValue>(
-    () => ({
+  const value = useMemo<MergeTreeContextValue>(() => {
+    const usedKeys = new Set<string>();
+    collectUsedKeys(tree, usedKeys);
+    return {
       tree,
       addSourceAsRoot: (source, side) => {
         const node = sourceToMerge(source, side);
@@ -210,9 +224,9 @@ export function MergeTreeProvider({ children }: { children: ReactNode }) {
         return findAll(tree, (n) => n.label.trim().toLowerCase() === norm);
       },
       getNode: (id) => findNode(tree, id),
-    }),
-    [tree]
-  );
+      isSourceUsed: (side, path) => usedKeys.has(originKey(side, path)),
+    };
+  }, [tree]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
