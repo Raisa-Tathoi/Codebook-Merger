@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import { useMergeTree } from "../state/MergeTreeContext";
-import { exportCsv, exportJson } from "../export/exportTree";
+import { exportJson, exportXlsx } from "../export/exportTree";
 import { MERGE_ROOT_DROP_ID } from "../dnd/dndTypes";
 import { MergeTreeView } from "./MergeTree";
 
@@ -27,9 +27,9 @@ export function MergePanel() {
             type="button"
             className="btn"
             disabled={tree.length === 0}
-            onClick={() => exportCsv(tree)}
+            onClick={() => exportXlsx(tree)}
           >
-            Export CSV
+            Export XLSX
           </button>
           <button
             type="button"

@@ -8,16 +8,22 @@ import {
 } from "react";
 import type { MergeNode, OriginRef, Side, SourceNode } from "../types";
 import { clearMergeTree, loadMergeTree, saveMergeTree } from "../storage/localStore";
+import { useSources } from "./SourceContext";
 
 let counter = 0;
 const uid = () => `mrg_${Date.now().toString(36)}_${(counter++).toString(36)}`;
 
-function sourceToMerge(node: SourceNode, side: Side): MergeNode {
+function sourceToMerge(
+  node: SourceNode,
+  side: Side,
+  fileName: string | undefined
+): MergeNode {
   const origin: OriginRef = {
     side,
     level: node.level,
     path: node.path,
     definition: node.definition,
+    fileName,
   };
   return {
     id: uid(),
@@ -25,7 +31,7 @@ function sourceToMerge(node: SourceNode, side: Side): MergeNode {
     definition: node.definition,
     note: "",
     origins: [origin],
-    children: node.children.map((c) => sourceToMerge(c, side)),
+    children: node.children.map((c) => sourceToMerge(c, side, fileName)),
   };
 }
 
@@ -131,6 +137,9 @@ const Ctx = createContext<MergeTreeContextValue | null>(null);
 
 export function MergeTreeProvider({ children }: { children: ReactNode }) {
   const [tree, setTree] = useState<MergeNode[]>(() => loadMergeTree());
+  const { left, right } = useSources();
+  const fileNameFor = (side: Side) =>
+    side === "LEFT" ? left?.fileName : right?.fileName;
 
   useEffect(() => {
     saveMergeTree(tree);
@@ -142,25 +151,27 @@ export function MergeTreeProvider({ children }: { children: ReactNode }) {
     return {
       tree,
       addSourceAsRoot: (source, side) => {
-        const node = sourceToMerge(source, side);
+        const node = sourceToMerge(source, side, fileNameFor(side));
         setTree((prev) => [...prev, node]);
       },
       addSourceUnder: (parentId, source, side) => {
-        const node = sourceToMerge(source, side);
+        const node = sourceToMerge(source, side, fileNameFor(side));
         setTree((prev) => insertUnder(prev, parentId, node));
       },
       mergeSourceInto: (targetId, source, side, combinedDefinition) => {
+        const fn = fileNameFor(side);
         const incomingOrigin: OriginRef = {
           side,
           level: source.level,
           path: source.path,
           definition: source.definition,
+          fileName: fn,
         };
         setTree((prev) =>
           mapTree(prev, (n) => {
             if (n.id !== targetId) return n;
             const mergedChildren = source.children.map((c) =>
-              sourceToMerge(c, side)
+              sourceToMerge(c, side, fn)
             );
             return {
               ...n,
@@ -226,7 +237,7 @@ export function MergeTreeProvider({ children }: { children: ReactNode }) {
       getNode: (id) => findNode(tree, id),
       isSourceUsed: (side, path) => usedKeys.has(originKey(side, path)),
     };
-  }, [tree]);
+  }, [tree, left?.fileName, right?.fileName]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
