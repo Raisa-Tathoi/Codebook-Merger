@@ -9,5 +9,12 @@ and merge it into a new codebook that can be then exported as csv
 - Merge codes: Hold down shift when dropping onto the code you want to merge with
 - Double click on the definition to edit it
 
+## Specific Formatting
+
+Regardless of the rest of your codebook, the first couple columns uptil the definition but look like this:
+
+Top-Level Code | Sub-Code | Code | Code Level 1 | (insert more code levels if needed) | Definition
+
+**your definition column must be named "definition" or contain the word "definition"**
 
 made with the help of Claude Opus 4.8
