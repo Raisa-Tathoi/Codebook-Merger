@@ -1,8 +1,12 @@
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
 import type { Side, SourceNode as SourceNodeT } from "../types";
-import { SOURCE_DRAG_ID_PREFIX } from "../dnd/dndTypes";
+import {
+  SOURCE_DRAG_ID_PREFIX,
+  SOURCE_NODE_DROP_PREFIX,
+} from "../dnd/dndTypes";
 import { useSources } from "../state/SourceContext";
+import { useMergeTree } from "../state/MergeTreeContext";
 
 interface Props {
   node: SourceNodeT;
@@ -20,22 +24,39 @@ export function SourceNodeView({ node, side, depth }: Props) {
   const [open, setOpen] = useState(depth < 1);
   const [editingDef, setEditingDef] = useState(false);
   const { editDefinition } = useSources();
+  const { isSourceUsed } = useMergeTree();
   const hasChildren = node.children.length > 0;
+  const used = isSourceUsed(side, node.path);
 
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({
     id: `${SOURCE_DRAG_ID_PREFIX}${node.id}`,
     data: { payload: { kind: "source", side, node } },
   });
 
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: `${SOURCE_NODE_DROP_PREFIX}${node.id}`,
+    data: { targetId: node.id, side },
+  });
+
+  function attachRefs(el: HTMLDivElement | null) {
+    setDragRef(el);
+    setDropRef(el);
+  }
+
   return (
     <div className="source-node" style={{ marginLeft: depth * 12 }}>
       <div
-        ref={setNodeRef}
+        ref={attachRefs}
         {...listeners}
         {...attributes}
         className={`card source-card level-${node.level} ${
           isDragging ? "dragging" : ""
-        }`}
+        } ${used ? "used" : ""} ${isOver && !isDragging ? "drop-target" : ""}`}
       >
         <div className="card-row">
           {hasChildren && (
